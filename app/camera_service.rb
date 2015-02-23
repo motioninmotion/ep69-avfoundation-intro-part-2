@@ -1,13 +1,27 @@
 class CameraService
-  attr_reader :preview_layer
+  attr_reader :preview_layer, :parent_layer
 
-  def initialize
+  def initialize(parent_layer)
+    @parent_layer = parent_layer
+
     configure
     start
   end
 
   def session
     @session ||= AVCaptureSession.new
+  end
+
+  def capture_image
+    @image_output.captureStillImageAsynchronouslyFromConnection(image_output_connection, completionHandler: -> (image_buffer, error) {
+      if image_buffer
+        data = AVCaptureStillImageOutput.jpegStillImageNSDataRepresentation(image_buffer)
+        image = UIImage.alloc.initWithData(data)
+        PHPhotoLibrary.sharedPhotoLibrary.performChanges(-> {
+          PHAssetChangeRequest.creationRequestForAssetFromImage(image)
+        }, completionHandler: nil)
+      end
+    })
   end
 
   private
@@ -34,7 +48,18 @@ class CameraService
     end
 
     @preview_layer = AVCaptureVideoPreviewLayer.alloc.initWithSession(session)
+    @parent_layer.addSublayer(@preview_layer)
+
+    @image_output = AVCaptureStillImageOutput.new
+    @image_output.highResolutionStillImageOutputEnabled = true
+    @image_output.outputSettings = { AVVideoCodecKey => AVVideoCodecJPEG }
+
+    session.addOutput(@image_output) if session.canAddOutput(@image_output)
 
     session.commitConfiguration
+  end
+
+  def image_output_connection
+    @image_output.connectionWithMediaType(AVMediaTypeVideo)
   end
 end
