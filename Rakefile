@@ -11,5 +11,6 @@ end
 Motion::Project::App.setup do |app|
   # Use `rake config' to see complete project settings.
   app.name = 'CaptureCam'
-  app.frameworks += ['AVFoundation']
+  app.frameworks += ['AVFoundation', 'Photos']
+  app.provisioning_profile = ENV["PROVISIONING_PROFILE"]
 end
