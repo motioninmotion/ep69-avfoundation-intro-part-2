@@ -14,7 +14,7 @@ class CameraService
   def capture_image
     @image_output.captureStillImageAsynchronouslyFromConnection(
       @image_output.connectionWithMediaType(AVMediaTypeVideo),
-      completionHandler: -> (image_buffer, error) {
+      completionHandler: -> (image_buffer, _) {
         if image_buffer
           data = AVCaptureStillImageOutput.jpegStillImageNSDataRepresentation(image_buffer)
           image = UIImage.alloc.initWithData(data)
