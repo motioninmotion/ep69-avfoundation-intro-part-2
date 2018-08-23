@@ -1,5 +1,6 @@
 class CaptureCamViewController < UIViewController
   def viewDidAppear(animated)
+    super
     @cam_service = CameraService.new(view.layer)
     @cam_service.preview_layer.frame = view.frame
 
@@ -9,6 +10,7 @@ class CaptureCamViewController < UIViewController
   end
 
   def viewDidDisappear(animated)
+    super
     view.removeGestureRecognizer(@tap_gesture)
   end
 
